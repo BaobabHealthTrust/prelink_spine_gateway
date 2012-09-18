@@ -1,0 +1,13 @@
+production:
+  run_local: true
+  cancel_destination_root_url: localhost:3003
+ 
+development:
+  run_local: true
+  cancel_destination_root_url: localhost:3003
+ 
+test: &TEST
+  run_local: true
+
+cucumber:
+  <<: *TEST

@@ -1,0 +1,64 @@
+<html>
+  <head>
+    <title>Current Orders</title>
+    <style type="text/css">
+      body {
+        font-family: "Nimbus Sans L","Arial Narrow",sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <table width="100%" cellpadding="10" cellspacing="1">
+      <tr style="font-size: 14px; background-color: #6281A7; color: #fff; font-weight: bold;">
+        <td style="text-align: center; vertical-align: top;">
+          Request Number
+        </td>
+        <td style="text-align: center; vertical-align: top;">
+          Priority
+        </td>
+        <td style="text-align: center; vertical-align: top;">
+          Tests
+        </td>
+        <td style="text-align: center; vertical-align: top;">
+          Date Received
+        </td>
+        <td style="text-align: center; vertical-align: top;">
+          Date Collected
+        </td>
+        <td style="text-align: center; vertical-align: top;">
+          Result
+        </td>
+        <td style="text-align: center; vertical-align: top;">
+          Date Result Received
+        </td>
+      </tr>
+
+      <% @open.each do |order| %>
+        <tr>
+          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
+            <%= order.request_number rescue "" %>&nbsp;
+          </td>
+          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
+            <%= order.priority_code rescue "" %>&nbsp;
+          </td>
+          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
+            <%= order.test_code.split("|").collect{|test| @codes[test]}.join(", ")  %>&nbsp;
+          </td>
+          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
+            <%= order.date_received.strftime("%d/%b/%Y") rescue "" %>&nbsp;
+          </td>
+          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
+            <%= order.date_collected.strftime("%d/%b/%Y") rescue "" %>&nbsp;
+          </td>
+          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
+            <%= order.result rescue "" %>&nbsp;
+          </td>
+          <td style="border-bottom: 1px solid #6281A7; vertical-align: top;">
+            <%= order.date_result_received.strftime("%d/%b/%Y") rescue "" %>&nbsp;
+          </td>
+        </tr>
+      <% end %>
+
+    </table>
+  </body>
+</html>

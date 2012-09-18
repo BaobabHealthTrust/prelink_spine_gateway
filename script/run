@@ -1,0 +1,22 @@
+#!/bin/bash
+
+usage(){
+  echo "Usage: $0 PORT"
+  echo
+  echo "      PORT should be the port where tha application is running on. " 
+  echo "      An assumption is also made that you are using 'rvm' and that"
+  echo "      there exists a 'ruby-1.9.3' installation which has a 'gemset'"
+  echo "      labelled 'washout' which has gems in 'Gemfile'"
+  echo
+}
+
+if [ -z "$1" ] ; then
+  usage
+  exit
+fi
+
+source /home/chimwemwe/.rvm/scripts/rvm
+
+rvm use 1.9.3@washout
+
+rails server -p $1

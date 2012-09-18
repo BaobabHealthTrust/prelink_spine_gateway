@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <title>Patient Dashboard</title>
+    <script type="text/javascript" language="javascript" src="lib/javascripts/touchScreenToolkit.js" defer  ></script>
+    <meta http-equiv='content-type' content='text/html;charset=UTF-8' />
+    <script language="javascript">
+      tt_cancel_destination = "http://<%= @cancel_destination_root_url %>/patients/show/<%= @patient.id %>";
+      tt_cancel_show = "http://<%= @cancel_destination_root_url %>/patients/show/<%= @patient.id %>";
+    </script>
+  </head>
+  <body><div id='content'>
+      <div id='description' style='color:#777;position:absolute;margin-top:-70px;'></div><center>
+        <form id = 'dashboard' action='home.html'>
+          <div>Patient Dashboard</div>
+          <div id='project_name'>
+            <div style="margin-top: 0px; color: #6281A7; font-size: 0.8em">
+              spine
+              <div style="font-size: 0.3em;">
+                <span style="color: #a8ed7a;">preLink</span> gateway
+              </div>
+            </div>
+          </div>
+          <span id='patient_name'><%= @name %></span>
+          <span id='patient_id'><%= @national_id %></span>
+          <!--span id='patient_residence'>18/1453</span-->
+          <span id='patient_age'><%= @age %></span>
+          <span id='patient_gender'><%= (@gender.upcase == "F" ? "Female" :
+                (@gender.upcase == "M" ? "Male" : "")) %></span>
+          <select id="tabs">
+            <option value='/show/overview/<%= @patient.id %>'>Current Orders</option>
+            <option value='/show/orders/<%= @patient.id %>'>Outstanding Lab Orders</option>
+            <option value='/show/results/<%= @patient.id %>'>Lab Results</option>
+          </select>
+          <select id="links">
+            <option></option>
+            <option></option>
+            <option value='/order_request/<%= @patient.id %>'>New Lab Order</option>
+            <option></option>
+          </select>
+          <input type='submit' value='Finish' />
+        </form>
+      </center>
+    </div>
+  </body>
+</html>

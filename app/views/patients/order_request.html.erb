@@ -16,7 +16,7 @@
   <%= hidden_field_tag "PatientId", "#{@patient.id}" %>
 
   <%= select_tag "PriorityCode",
-    options_for_select(["Normal", "Low", "High"]),
+    options_for_select([["", ""], ["QC", "Q"], ["Routine", "R"], ["Urgent", "U"]]),
     {
     :helptext => "Select tests priority",
     :nested => :true
@@ -25,32 +25,34 @@
 
   <%= text_field_tag "DateCollected", nil,
     {
-    :helptext => "Date collected",
+    :helptext => "Date sample collected",
     :field_type => 'date'
   }
 %>
 
   <%= text_field_tag "DateReceived", nil,
     {
-    :helptext => "Date received",
+    :helptext => "Date sample received at facility",
     :field_type => 'date'
   }
 %>
 
-  <%= text_field_tag "FolioNumber", nil,
+  <%= hidden_field_tag "FolioNumber", nil,
     {
-    :helptext => "Folio Number"
+    :helptext => "Folio Number",
+    :optional => true
   }
 %>
 
-  <%= text_field_tag "DoctorLocationCode", nil,
+  <%= hidden_field_tag "DoctorLocationCode", nil,
     {
-    :helptext => "Doctor Location Code"
+    :helptext => "Doctor Location Code",
+    :optional => true
   }
 %>
 
   <%= select_tag "TestCodes[]",
-    options_for_select(@codes),
+    grouped_options_for_select(@codes),
     {
     :helptext => "Select tests to be done",
     :multiple => :multiple,

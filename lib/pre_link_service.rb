@@ -164,8 +164,8 @@ class PreLinkService
           <soap:Body>
             <GetRequestResults xmlns="http://www.prelink.co.za/">
               <requestNumber>' +
-                requests +
-              '</requestNumber>
+        requests +
+        '</requestNumber>
             </GetRequestResults>
           </soap:Body>
         </soap:Envelope>'
@@ -176,6 +176,51 @@ class PreLinkService
 
   end
 
+  def get_results_by_date
+    response = @client.request :get_new_results do |soap|
+      soap.xml = '<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Header>
+    <preLinkHeader xmlns="http://www.prelink.co.za/">
+      <StationId>' + STATION_ID + '</StationId>
+      <PassCode>' + PASS_CODE + '</PassCode>
+    </preLinkHeader>
+  </soap:Header>
+  <soap:Body>
+    <GetResultsByDate xmlns="http://www.prelink.co.za/">
+      <patientId>' + params[:national_id] + '</patientId>
+      <startDate>' + params[:start_date] + '</startDate>
+      <endDate>' + params[:end_date] + '</endDate>
+    </GetResultsByDate>
+  </soap:Body>
+</soap:Envelope>'
+
+    end
+
+    return nil if response.soap_fault?
+
+    useful_elements = response.to_hash[:get_results_by_date_response][:get_results_by_date_result]
+
+  end
+
+  def get_priority_list
+    response = @client.request :get_prioriy_list
+
+    return nil if response.soap_fault?
+
+    useful_elements = response.to_hash[:get_profile_codes_response][:get_profile_codes_result][:diffgram][:document_element][:dynamic_list]
+
+    array_of_hashes = useful_elements.map do |test|
+      test.reject do |key,value|
+        (key != :parent_prifile_id) and (key != :parent_profile_name) and (key != :test_name)
+      end
+    end
+
+    array_of_hashes.inject({}) do |new_hash, array_hash|
+      new_hash[array_hash[:test_name]]=array_hash[:test_code]
+      new_hash
+    end
+  end
 
   # [:get_profile_codes, :get_new_results, :order_request, :get_request_results,
   # :get_test_codes, :get_folio_results, :get_results_by_date,

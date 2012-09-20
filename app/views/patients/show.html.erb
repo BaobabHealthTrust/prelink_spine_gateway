@@ -14,7 +14,9 @@
           <div>Patient Dashboard</div>
           <div id='project_name'>
             <div style="margin-top: 0px; color: #6281A7; font-size: 0.8em">
-              spine
+              <!--spine -->
+              <img src="/assets/spine_logo.png" alt="spine" style="margin-top: 10px;
+                   margin-bottom: 10px;" />
               <div style="font-size: 0.3em;">
                 <span style="color: #a8ed7a;">preLink</span> gateway
               </div>
@@ -32,14 +34,19 @@
             <option value='/show/results/<%= @patient.id %>'>Lab Results</option>
           </select>
           <select id="links">
-            <option></option>
-            <option></option>
+            <!--option></option>
+            <option></option-->
             <option value='/order_request/<%= @patient.id %>'>New Lab Order</option>
-            <option></option>
+            <!--option></option-->
           </select>
           <input type='submit' value='Finish' />
         </form>
       </center>
     </div>
+    <style type="text/css">
+      #buttonlinks button{
+        margin-top: 100px;
+      }
+    </style>
   </body>
 </html>

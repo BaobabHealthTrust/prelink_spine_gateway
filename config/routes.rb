@@ -7,5 +7,8 @@ WashOutSample::Application.routes.draw do
   match "show/results/:id" => "patients#results", :constraints => { :id => /\d+/ }
   match "place_order" => "patients#place_order"
   match "check_results" => "patients#check_results"
+  match "void/:id" => "patients#void"
+  match "print_ord/:id" => "patients#print_order"
+  match "print/:id" => "patients#print"
   wash_out :prelink
 end

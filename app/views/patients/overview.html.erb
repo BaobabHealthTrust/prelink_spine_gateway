@@ -6,6 +6,35 @@
         font-family: "Nimbus Sans L","Arial Narrow",sans-serif;
       }
     </style>
+    <script type="text/javascript" language="javascript">
+      <!--
+      
+      function extAction(id, path){
+        
+        confirmAction("Do you really want to delete this entry?", id, path);
+
+      }
+
+      function confirmAction(message, path) {
+        if (!tstMessageBar) {
+
+          var tstMessageBar = document.createElement("div");
+          tstMessageBar.id = "messageBar";
+          tstMessageBar.className = "messageBar";
+
+          tstMessageBar.innerHTML = message + "<br/>" + "<button onmousedown=\"window.parent.location='" + path +
+            "'\"><span>Yes</span></button><button onmousedown=\"document.getElementById('content').removeChild(document.getElementById('messageBar'));\"><span>No</span></button>";
+
+          tstMessageBar.style.display = "block";
+          parent.document.getElementById("content").appendChild(tstMessageBar);
+        }
+
+        return false;
+
+      }
+
+      //-->
+    </script>
   </head>
   <body>
     <table width="100%" cellpadding="10" cellspacing="1">
@@ -14,22 +43,25 @@
           Request Number
         </td>
         <td style="text-align: center; vertical-align: top;">
-          Priority
+          Test
         </td>
         <td style="text-align: center; vertical-align: top;">
-          Tests
+          Test Unit
         </td>
         <td style="text-align: center; vertical-align: top;">
-          Date Received
-        </td>
-        <td style="text-align: center; vertical-align: top;">
-          Date Collected
+          Test Range
         </td>
         <td style="text-align: center; vertical-align: top;">
           Result
         </td>
         <td style="text-align: center; vertical-align: top;">
+          Date Collected
+        </td>
+        <td style="text-align: center; vertical-align: top;">
           Date Result Received
+        </td>
+        <td style="text-align: center; vertical-align: top;">
+          Operations
         </td>
       </tr>
 
@@ -39,22 +71,38 @@
             <%= order.request_number rescue "" %>&nbsp;
           </td>
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.priority_code rescue "" %>&nbsp;
+            <%= order.test_code %>&nbsp;
           </td>
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.test_code.split("|").collect{|test| @codes[test]}.join(", ")  %>&nbsp;
+            <%= order.test_unit rescue "" %>&nbsp;
           </td>
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.date_received.strftime("%d/%b/%Y") rescue "" %>&nbsp;
+            <%= order.test_range rescue "" %>&nbsp;
+          </td>
+          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
+            <%= order.result rescue "" %>&nbsp;
           </td>
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
             <%= order.date_collected.strftime("%d/%b/%Y") rescue "" %>&nbsp;
           </td>
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.result rescue "" %>&nbsp;
-          </td>
-          <td style="border-bottom: 1px solid #6281A7; vertical-align: top;">
             <%= order.date_result_received.strftime("%d/%b/%Y") rescue "" %>&nbsp;
+          </td>
+          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7;
+              vertical-align: top; text-align: center;">
+            <table>
+              <tr>
+                <td style="text-align: center; width: 60px;">
+                  <img src="/assets/print.png" alt="Print" style="cursor: pointer;"
+                       onclick="confirmAction('Print this order?', '/print_ord/<%= order.id %>?redirect_url=show')" />
+                </td>
+                <td style="text-align: center; width: 60px;">
+                  <img src="/assets/cancel_flat_small_red.png" alt="Void" style="cursor: pointer;"
+                       onclick="confirmAction('Do you really want to delete this entry?', '/void/<%= order.id %>');" />
+                </td>
+              </tr>
+            </table>
+
           </td>
         </tr>
       <% end %>

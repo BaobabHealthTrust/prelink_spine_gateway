@@ -17,14 +17,6 @@ class PatientsController < ApplicationController
     @dob = @patient.person.birthdate rescue ""
     @gender = @patient.person.gender rescue ""
 
-    # tmp = @prelink.get_test_codes
-
-    # @codes = [""]
-
-    # tmp.each do |key, value|
-    #  @codes << [key, value] if !value.blank?
-    # end
-
     @codes = {
       "FNA Gram Stain" => ["Gram GNB","Gram GNC","Gram GNCB","Gram GNDC","Gram GPB",
         "Gram GPC","Gram GPDC","Gram NOS","Gram YEA"],
@@ -111,7 +103,7 @@ class PatientsController < ApplicationController
 
   end
 
-  def place_order
+  def place_orders
     options = {
       :priority_code => params["PriorityCode"],
       :date_collected => params["DateCollected"],
@@ -142,6 +134,26 @@ class PatientsController < ApplicationController
       :request_number => @result[:request_number],
       :barcodes => @result[:barcodes]
     )
+
+    redirect_to "/show/#{@order.patient_id}"
+
+  end
+
+  def place_order
+    prefix = YAML.load_file("#{Rails.root}/config/application.yml")["#{Rails.env}"]["order_prefix"] rescue ""
+    
+    params["TestCodes"].each do |test|
+      @order = LabOrder.create(
+        :national_id => params["NationalId"],
+        :date_collected => Time.now,
+        :patient_id => params["PatientId"],
+        :test_code => test
+      )
+      
+      @order.update_attributes(
+        :request_number => "#{prefix}#{@order[:lab_order_id]}"
+      )
+    end
 
     redirect_to "/show/#{@order.patient_id}"
 
@@ -193,14 +205,6 @@ class PatientsController < ApplicationController
         @patient.id, (session[:datetime] ? session[:datetime].to_date.strftime("%Y-%m-%d") :
             Date.today.strftime("%Y-%m-%d"))]) rescue []
     
-    tmp = @prelink.get_test_codes
-
-    @codes = {}
-
-    tmp.each do |key, value|
-      @codes[value] = key if !value.blank?
-    end
-
     render :layout => false
   end
 
@@ -217,14 +221,6 @@ class PatientsController < ApplicationController
       end
     end
 
-    @codes = {}
-
-    tmp = @prelink.get_test_codes
-
-    tmp.each do |key, value|
-      @codes[value] = key if !value.blank?
-    end
-
     render :layout => false
   end
 
@@ -239,14 +235,6 @@ class PatientsController < ApplicationController
       if !order.result.blank?
         @closed << order
       end
-    end
-
-    @codes = {}
-
-    tmp = @prelink.get_test_codes
-
-    tmp.each do |key, value|
-      @codes[value] = key if !value.blank?
     end
 
     render :layout => false
@@ -269,6 +257,39 @@ class PatientsController < ApplicationController
     @new_results = results.length rescue 0
     
     # render :text => results.length rescue 0
+  end
+
+  def void
+    @order = LabOrder.find(params[:id])
+    @patient_id = @order.patient_id
+    @order.void
+    
+    redirect_to "/show/#{@patient_id}" and return
+  end
+
+  def print_order
+    @order = LabOrder.find(params[:id])
+    @patient = Spine::Patient.find(@order.patient_id)
+
+    print_and_redirect("/print/#{params[:id]}", "/#{(params[:redirect_url] || "/show")}/#{@patient.id}") and return
+    
+  end
+
+  def print
+    @order = LabOrder.find(params[:id])
+    @patient = Spine::Patient.find(@order.patient_id)
+
+    print_string = '
+N
+q500
+Q165,026
+ZT
+A40,50,0,2,1,1,N,"' + (@order.date_collected || Time.now).strftime("%d %b %Y %H:%M") + ' ' + @order.national_id + '"
+A40,76,0,2,1,1,N,"' + @patient.person.name + ' ' + @order.request_number + '"
+A40,102,0,2,1,1,R,"' + @order.test_code + '"
+B50,130,0,1,4,8,20,N,"' + @order.request_number + '"
+P1'
+    send_data(print_string,:type=>"application/label; charset=utf-8", :stream=> false, :filename=>"#{@patient.id}#{rand(10000)}.lbs", :disposition => "inline")
   end
 
 end

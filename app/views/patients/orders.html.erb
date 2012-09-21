@@ -14,19 +14,19 @@
           Request Number
         </td>
         <td style="text-align: center; vertical-align: top;">
-          Priority
+          Test
         </td>
         <td style="text-align: center; vertical-align: top;">
-          Tests
+          Test Unit
         </td>
         <td style="text-align: center; vertical-align: top;">
-          Date Received
-        </td>
-        <td style="text-align: center; vertical-align: top;">
-          Date Collected
+          Test Range
         </td>
         <td style="text-align: center; vertical-align: top;">
           Result
+        </td>
+        <td style="text-align: center; vertical-align: top;">
+          Date Collected
         </td>
         <td style="text-align: center; vertical-align: top;">
           Date Result Received
@@ -39,21 +39,21 @@
             <%= order.request_number rescue "" %>&nbsp;
           </td>
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.priority_code rescue "" %>&nbsp;
+            <%= order.test_code %>&nbsp;
           </td>
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.test_code.split("|").collect{|test| @codes[test]}.join(", ")  %>&nbsp;
+            <%= order.test_unit rescue "" %>&nbsp;
           </td>
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.date_received.strftime("%d/%b/%Y") rescue "" %>&nbsp;
+            <%= order.test_range rescue "" %>&nbsp;
+          </td>
+          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
+            <%= order.result rescue "" %>&nbsp;
           </td>
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
             <%= order.date_collected.strftime("%d/%b/%Y") rescue "" %>&nbsp;
           </td>
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.result rescue "" %>&nbsp;
-          </td>
-          <td style="border-bottom: 1px solid #6281A7; vertical-align: top;">
             <%= order.date_result_received.strftime("%d/%b/%Y") rescue "" %>&nbsp;
           </td>
         </tr>

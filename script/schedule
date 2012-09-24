@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+require "rubygems"
+require "rest-client"
+
+url = "http://localhost:3007/check_results"
+
+p = RestClient.get(url)
+
+puts p
+

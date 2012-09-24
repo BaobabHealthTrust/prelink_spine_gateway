@@ -142,6 +142,8 @@ class PatientsController < ApplicationController
   def place_order
     prefix = YAML.load_file("#{Rails.root}/config/application.yml")["#{Rails.env}"]["order_prefix"] rescue ""
     
+    ids = ""
+
     params["TestCodes"].each do |test|
       @order = LabOrder.create(
         :national_id => params["NationalId"],
@@ -153,13 +155,19 @@ class PatientsController < ApplicationController
       @order.update_attributes(
         :request_number => "#{prefix}#{@order[:lab_order_id]}"
       )
+
+      if ids == ""
+        ids = @order.id.to_s
+      else
+        ids = ids + ";" + @order.id.to_s
+      end
     end
 
-    redirect_to "/show/#{@order.patient_id}"
+    print_and_redirect("/print/#{ids}", "/show/#{@order.patient_id}") and return
 
   end
 
-  def show    
+  def show
     @patient = Spine::Patient.find(params[:id]) rescue nil
 
     @name = @patient.person.name rescue ""
@@ -276,10 +284,15 @@ class PatientsController < ApplicationController
   end
 
   def print
-    @order = LabOrder.find(params[:id])
-    @patient = Spine::Patient.find(@order.patient_id)
+    ids = params[:id].split(";")
 
-    print_string = '
+    print_string = ''
+    
+    ids.each do |id|
+      @order = LabOrder.find(id)
+      @patient = Spine::Patient.find(@order.patient_id)
+
+      print_string += '
 N
 q500
 Q165,026
@@ -288,7 +301,10 @@ A40,50,0,2,1,1,N,"' + (@order.date_collected || Time.now).strftime("%d %b %Y %H:
 A40,76,0,2,1,1,N,"' + @patient.person.name + ' ' + @order.request_number + '"
 A40,102,0,2,1,1,R,"' + @order.test_code + '"
 B50,130,0,1,4,8,20,N,"' + @order.request_number + '"
-P1'
+P1
+'
+    end
+    
     send_data(print_string,:type=>"application/label; charset=utf-8", :stream=> false, :filename=>"#{@patient.id}#{rand(10000)}.lbs", :disposition => "inline")
   end
 

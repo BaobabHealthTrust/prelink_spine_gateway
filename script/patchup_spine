@@ -1,0 +1,30 @@
+#!/bin/bash
+
+usage(){
+  echo "Usage: $0 SPINE_PATH"
+  echo
+  echo "      SPINE_PATH should be the physical home directory where SPINE"
+  echo "      is running on, for example '/var/www/spine'"
+  echo
+}
+
+if [ -z "$1" ] ; then
+  usage
+  exit
+fi
+
+cd script/
+
+patch $1/app/views/people/index.rhtml patches/people_index.diff.rhtml
+
+patch $1/app/views/patients/show.rhtml patches/patients_show.diff.rhtml
+
+cp patches/spine.application.yml.example $1/config/application.yml.example
+
+cp patches/spine.application.yml.example $1/config/application.yml
+
+cd ../
+
+echo "Done!"
+
+echo ""

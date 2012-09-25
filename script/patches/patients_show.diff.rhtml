@@ -1,0 +1,137 @@
+6c6
+<  
+---
+> 
+25c25
+< #menu {
+---
+>   #menu {
+33,40d32
+<  
+< .buttonsDiv{
+<   width: 995px;
+< }
+< 
+< ul.list{
+<   overflow-x: hidden;
+< }
+41a34,44
+>   .buttonsDiv{
+>     width: 995px;
+>   }
+> 
+>   ul.list{
+>     overflow-x: hidden;
+>   }
+> 
+>   button.navButton {
+>     margin-top: 10px;
+>   }
+43c46
+<  
+---
+> 
+52,62c55,65
+<     <%= render :partial => "current_encounters" %>
+<  
+<     <% if @super_user || @doctor%>
+<       <%= render :partial => "patient_history"%>
+<       <%= render :partial => "simple_graph", :locals=>{:fields=>@patient}  rescue nil%>
+<     <%end%>
+<     
+<     <% if @nurse%>
+<       <%= render :partial => "vitals_history"%>
+<       <%= render :partial => "simple_graph", :locals=>{:fields=>@patient} rescue nil%>
+<     <%end%>
+---
+>   <%= render :partial => "current_encounters" %>
+> 
+>   <% if @super_user || @doctor%>
+>     <%= render :partial => "patient_history"%>
+>     <%= render :partial => "simple_graph", :locals=>{:fields=>@patient}  rescue nil%>
+>   <%end%>
+> 
+>   <% if @nurse%>
+>     <%= render :partial => "vitals_history"%>
+>     <%= render :partial => "simple_graph", :locals=>{:fields=>@patient} rescue nil%>
+>   <%end%>
+66c69
+<       <!--a class="button green" href='/encounters/new/label_specimens/?patient_id=<%= @patient.id -%>'>Label Specimens</a-->
+---
+>             <!--a class="button green" href='/encounters/new/label_specimens/?patient_id=<%= @patient.id -%>'>Label Specimens</a-->
+68,70c71,73
+<     <%if session[:ward] == 'WARD 4B' && !@patient.admitted_to_ward(@session_datetime)%>
+<       <a class="button green" href='/patients/admit?patient_id=<%= @patient.id -%>'>Admit to Ward</a>
+<     <%end%>
+---
+>       <%if session[:ward] == 'WARD 4B' && !@patient.admitted_to_ward(@session_datetime)%>
+>         <a class="button green" href='/patients/admit?patient_id=<%= @patient.id -%>'>Admit to Ward</a>
+>       <%end%>
+77c80
+<   <%end %>
+---
+>     <%end %>
+79,82c82,85
+<   <%if @regstration_clerk%>
+<     <a class="button green" href='/patients/demographics?patient_id=<%= @patient.id -%>'>Full Demographics</a>
+<     <a class="button green" href='/patients/print_registration?patient_id=<%= @patient.id -%>'>Print Registration</a>
+<   <%end %>
+---
+>     <%if @regstration_clerk%>
+>       <a class="button green" href='/patients/demographics?patient_id=<%= @patient.id -%>'>Full Demographics</a>
+>       <a class="button green" href='/patients/print_registration?patient_id=<%= @patient.id -%>'>Print Registration</a>
+>     <%end %>
+84c87
+<   <%if @spine_clinician%>
+---
+>     <%if @spine_clinician%>
+86,88c89,91
+<        <a class="button green" href='/patients/chronic_conditions?patient_id=<%= @patient.id -%>'>Chronic Conditions</a>
+<        <a class="button green" href='/patients/new_test_set?patient_id=<%= @patient.id -%>'>Lab Orders</a>
+<   <%end%>
+---
+>       <a class="button green" href='/patients/chronic_conditions?patient_id=<%= @patient.id -%>'>Chronic Conditions</a>
+>       <!--a class="button green" href='/patients/new_test_set?patient_id=<%= @patient.id -%>'>Lab Orders</a-->
+>     <%end%>
+91,95c94,98
+<   <%if @super_user%>
+<      <a class="button green" href='/patients/hiv_status?patient_id=<%= @patient.id -%>'>HIV/ART Status</a>
+<     <%if session[:ward] == 'WARD 4B' && !@patient.admitted_to_ward(@session_datetime)%>
+<       <a class="button green" href='/patients/admit?patient_id=<%= @patient.id -%>'>Admit to Ward</a>
+<     <%end%>
+---
+>     <%if @super_user%>
+>       <a class="button green" href='/patients/hiv_status?patient_id=<%= @patient.id -%>'>HIV/ART Status</a>
+>       <%if session[:ward] == 'WARD 4B' && !@patient.admitted_to_ward(@session_datetime)%>
+>         <a class="button green" href='/patients/admit?patient_id=<%= @patient.id -%>'>Admit to Ward</a>
+>       <%end%>
+101,102c104,105
+<        <a class="button green" href='/patients/chronic_conditions?patient_id=<%= @patient.id -%>'>Chronic Conditions</a>
+<        <a class="button green" href='/patients/new_test_set?patient_id=<%= @patient.id -%>'>Lab Orders</a>
+---
+>       <a class="button green" href='/patients/chronic_conditions?patient_id=<%= @patient.id -%>'>Chronic Conditions</a>
+>       <!--a class="button green" href='/patients/new_test_set?patient_id=<%= @patient.id -%>'>Lab Orders</a-->
+115,116c118,131
+<  <div style="z-index:11;bottom:1px; height: 64px; width: 435px; left: 120px; position: absolute;"><table><tr><td>Location</td><td>: <span style='font-color:green'><span style='font-color:green'><%=session[:ward]%></span></td></tr>
+<       <tr><td>User </td><td>: <span style='font-color:green'><%=User.find(session[:user_id]).name rescue 'User' %></span></td></tr></table></div>
+---
+> <div style="z-index:11;bottom:1px; height: 64px; width: 435px; left: 120px; position: absolute;"><table><tr><td>Location</td><td>: <span style='font-color:green'><span style='font-color:green'><%=session[:ward]%></span></td></tr>
+>     <tr><td>User </td><td>: <span style='font-color:green'><%=User.find(session[:user_id]).name rescue 'User' %></span></td></tr></table></div>
+> 
+> <script type="text/javascript" language="javascript">
+>   <% link = YAML.load_file("#{Rails.root}/config/application.yml")["#{Rails.env}"]["prelink_url"] rescue "localhost:3007" %>
+>   function addButton(){
+>     var btn = document.createElement("button");
+>     btn.innerHTML = "<span>Lab Orders</span>";
+>     btn.style.cssFloat = "right";
+>     //btn.style.marginTop = "10px";
+>     btn.className = "navButton";
+>     btn.onclick = function(){
+>       window.location = "http://<%= link %>/show/<%= @patient.id %>"
+>     }
+117a133,134
+>     document.getElementById("buttons").appendChild(btn);
+>   }
+118a136,137
+>   setTimeout("addButton()", 300);
+> </script>

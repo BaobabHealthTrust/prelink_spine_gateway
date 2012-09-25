@@ -1,0 +1,24 @@
+56,57c56,57
+<     <% if @super_user%>
+<       <button id="find_lab_entries_button" class="button green" style="min-width:515px;" onclick="window.location = '/encounters/lab_results_entry'" style="min-width:480px;">
+---
+>     <%# if @super_user%>
+>       <!--button id="find_lab_entries_button" class="button green" style="min-width:515px;" onclick="window.location = '/encounters/lab_results_entry'" style="min-width:480px;">
+61,62c61,62
+<       <button id="admin_button" class="button green" style="min-width:515px;" onclick="window.location = '/admin'"><span>Administration</span></button>
+<     <%end%>
+---
+>       <button id="admin_button" class="button green" style="min-width:515px;" onclick="window.location = '/admin'"><span>Administration</span></button-->
+>     <%#end%>
+64,65c64,65
+<     <%if @spine_clinician %> <%#|| @super_user%>
+<       <button id="find_lab_entries_button" class="button green" style="min-width:515px;" onclick="window.location = '/encounters/lab_results_entry'" style="min-width:500px;">
+---
+>     <%#if @spine_clinician %> <%#|| @super_user%>
+>       <!--button id="find_lab_entries_button" class="button green" style="min-width:515px;" onclick="window.location = '/encounters/lab_results_entry'" style="min-width:500px;">
+67,68c67,68
+<           </button> <br />
+<         <%end%>
+---
+>           </button> <br /-->
+>         <%#end%>

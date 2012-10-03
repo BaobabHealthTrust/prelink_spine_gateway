@@ -73,13 +73,15 @@ class PreLinkService
 
     return nil if response.soap_fault?
 
-    useful_elements = response.to_hash[:get_new_results_response][:get_new_results_result][:diffgram][:document_element][:result]  # [:dynamic_list]
+    useful_elements = response.to_hash[:get_new_results_response][:get_new_results_result][:diffgram][:document_element][:result] rescue []  # [:dynamic_list]
 
     array_of_hashes = useful_elements.map do |test|
       test.reject do |key,value|
-        (key != :request_number) and (key != :result) and (key != :test_unit) and (key != :colour)
+        (key != :request_number) and (key != :result) and (key != :test_unit) and (key != :colour) and (key != :test_range)
       end
     end
+
+    array_of_hashes
 
   end
 

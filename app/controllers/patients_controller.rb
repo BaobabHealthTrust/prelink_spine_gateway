@@ -249,14 +249,15 @@ class PatientsController < ApplicationController
   end
 
   def check_results
-    results = @prelink.get_new_results
+    results = @prelink.get_new_results rescue []
 
     results.each do |result|
-      order = LabOrder.find_by_request_number(result[:request_number]) rescue nil
+      order = LabOrder.find_by_request_number(result[:request_number]) # rescue nil
 
       order.update_attributes(
         :result => result[:result],
         :test_unit => result[:test_unit],
+        :test_range => result[:test_range],
         :colour => result[:colour],
         :date_result_received => Time.now
       ) if !order.nil?

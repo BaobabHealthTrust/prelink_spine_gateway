@@ -16,7 +16,7 @@
         <td style="text-align: center; vertical-align: top;">
           Test
         </td>
-        <td style="text-align: center; vertical-align: top;">
+        <!--td style="text-align: center; vertical-align: top;">
           Test Unit
         </td>
         <td style="text-align: center; vertical-align: top;">
@@ -26,11 +26,14 @@
           Result
         </td>
         <td style="text-align: center; vertical-align: top;">
+          Color
+        </td-->
+        <td style="text-align: center; vertical-align: top;">
           Date Collected
         </td>
-        <td style="text-align: center; vertical-align: top;">
+        <!--td style="text-align: center; vertical-align: top;">
           Date Result Received
-        </td>
+        </td-->
       </tr>
 
       <% @open.each do |order| %>
@@ -41,7 +44,7 @@
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
             <%= order.test_code %>&nbsp;
           </td>
-          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
+          <!--td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
             <%= order.test_unit rescue "" %>&nbsp;
           </td>
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
@@ -51,11 +54,14 @@
             <%= order.result rescue "" %>&nbsp;
           </td>
           <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
+            <%= order.colour rescue "" %>&nbsp;
+          </td-->
+          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
             <%= order.date_collected.strftime("%d/%b/%Y") rescue "" %>&nbsp;
           </td>
-          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
+          <!--td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
             <%= order.date_result_received.strftime("%d/%b/%Y") rescue "" %>&nbsp;
-          </td>
+          </td-->
         </tr>
       <% end %>
 

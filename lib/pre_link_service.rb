@@ -38,7 +38,7 @@ class PreLinkService
     
     response = @client.request :get_test_codes
 
-    return nil if response.soap_fault?
+    return [] if response.soap_fault?
 
     useful_elements = response.to_hash[:get_test_codes_response][:get_test_codes_result][:diffgram][:document_element][:dynamic_list]
 
@@ -71,10 +71,10 @@ class PreLinkService
       
     end
 
-    return nil if response.soap_fault?
+    return [] if response.soap_fault?
 
     useful_elements = response.to_hash[:get_new_results_response][:get_new_results_result][:diffgram][:document_element][:result] rescue []  # [:dynamic_list]
-
+=begin
     array_of_hashes = useful_elements.map do |test|
       test.reject do |key,value|
         (key != :request_number) and (key != :result) and (key != :test_unit) and (key != :colour) and (key != :test_range)
@@ -82,13 +82,13 @@ class PreLinkService
     end
 
     array_of_hashes
-
+=end
   end
 
   def get_profile_codes
     response = @client.request :get_profile_codes
 
-    return nil if response.soap_fault?
+    return [] if response.soap_fault?
 
     useful_elements = response.to_hash[:get_profile_codes_response][:get_profile_codes_result][:diffgram][:document_element][:dynamic_list]
 
@@ -138,7 +138,7 @@ class PreLinkService
 
     end
 
-    return nil if response.soap_fault?
+    return [] if response.soap_fault?
 
     useful_elements = response.to_hash[:order_request_response][:order_request_result]
 
@@ -174,7 +174,7 @@ class PreLinkService
 
     end
 
-    return nil if response.soap_fault?
+    return [] if response.soap_fault?
 
   end
 
@@ -199,7 +199,7 @@ class PreLinkService
 
     end
 
-    return nil if response.soap_fault?
+    return [] if response.soap_fault?
 
     useful_elements = response.to_hash[:get_results_by_date_response][:get_results_by_date_result]
 
@@ -208,7 +208,7 @@ class PreLinkService
   def get_priority_list
     response = @client.request :get_prioriy_list
 
-    return nil if response.soap_fault?
+    return [] if response.soap_fault?
 
     useful_elements = response.to_hash[:get_profile_codes_response][:get_profile_codes_result][:diffgram][:document_element][:dynamic_list]
 

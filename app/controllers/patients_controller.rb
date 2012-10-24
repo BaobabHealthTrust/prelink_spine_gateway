@@ -249,22 +249,51 @@ class PatientsController < ApplicationController
   end
 
   def check_results
-    results = @prelink.get_new_results rescue []
+    results = @prelink.get_new_results rescue nil
 
-    results.each do |result|
-      order = LabOrder.find_by_request_number(result[:request_number]) # rescue nil
+    if !results.nil?
 
-      order.update_attributes(
-        :result => result[:result],
-        :test_unit => result[:test_unit],
-        :test_range => result[:test_range],
-        :colour => result[:colour],
-        :date_result_received => Time.now
-      ) if !order.nil?
-    end    
+      if results.class.to_s.upcase == "ARRAY"
+        
+        results.each do |result|
 
-    @new_results = results.length rescue 0
-    
+          order = LabOrder.find_by_request_number(result[:request_number]) # rescue nil
+
+          order.update_attributes(
+            :result => result[:result],
+            :test_unit => result[:test_unit],
+            :test_range => result[:test_range],
+            :colour => result[:colour],
+            :date_result_received => Time.now
+          ) if !order.nil?
+        end
+
+        @new_results = results.length rescue 0
+
+      else
+
+        order = LabOrder.find_by_request_number(results[:request_number]) # rescue nil
+
+        order.update_attributes(
+          :result => results[:result],
+          :test_unit => results[:test_unit],
+          :test_range => results[:test_range],
+          :colour => results[:colour],
+          :date_result_received => Time.now
+        ) if !order.nil?
+        
+        @new_results = 1
+
+      end
+      
+      
+      
+    else
+
+      @new_results = 0
+
+    end
+
     # render :text => results.length rescue 0
   end
 
@@ -303,7 +332,7 @@ A40,76,0,2,1,1,N,"' + @patient.person.name + ' ' + @order.request_number + '"
 A40,102,0,2,1,1,R,"' + @order.test_code + '"
 B50,130,0,1,4,8,20,N,"' + @order.request_number + '"
 P1
-'
+      '
     end
     
     send_data(print_string,:type=>"application/label; charset=utf-8", :stream=> false, :filename=>"#{@patient.id}#{rand(10000)}.lbs", :disposition => "inline")

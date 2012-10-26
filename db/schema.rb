@@ -44,9 +44,10 @@ ActiveRecord::Schema.define(:version => 0) do
     t.integer   "lab_result_id"
     t.string    "field_name"
     t.string    "field_value"
-    t.timestamp "timestamp",                     :null => false
-    t.integer   "voided",         :default => 0
+    t.timestamp "timestamp",                                   :null => false
+    t.integer   "voided",                       :default => 0
     t.string    "request_number"
+    t.string    "test_code",      :limit => 45
   end
 
 end

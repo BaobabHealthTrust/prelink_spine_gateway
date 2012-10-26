@@ -41,7 +41,45 @@ CREATE TABLE `lab_order` (
   `voided` int(1) DEFAULT '0',
   PRIMARY KEY (`lab_order_id`),
   UNIQUE KEY `lab_order_id_UNIQUE` (`lab_order_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=95 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `lab_result`
+--
+
+DROP TABLE IF EXISTS `lab_result`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lab_result` (
+  `lab_result_id` int(11) NOT NULL AUTO_INCREMENT,
+  `patient_id` int(11) DEFAULT NULL,
+  `national_id` varchar(45) DEFAULT NULL,
+  `test_code` varchar(255) DEFAULT NULL,
+  `request_number` varchar(45) DEFAULT NULL,
+  `voided` int(1) DEFAULT '0',
+  PRIMARY KEY (`lab_result_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=144 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `lab_result_details`
+--
+
+DROP TABLE IF EXISTS `lab_result_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lab_result_details` (
+  `lab_result_details_id` int(11) NOT NULL AUTO_INCREMENT,
+  `lab_result_id` int(11) DEFAULT NULL,
+  `field_name` varchar(255) DEFAULT NULL,
+  `field_value` varchar(255) DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `voided` int(1) DEFAULT '0',
+  `request_number` varchar(255) DEFAULT NULL,
+  `test_code` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`lab_result_details_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=882 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -53,4 +91,4 @@ CREATE TABLE `lab_order` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-09-25  8:22:42
+-- Dump completed on 2012-10-26 18:06:37

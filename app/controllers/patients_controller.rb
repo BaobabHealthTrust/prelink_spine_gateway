@@ -440,30 +440,63 @@ class PatientsController < ApplicationController
 
         results.each do |result|
 
-          if !result[:patient_id].nil?
+          if !result[:clinic_patient_id].nil? && result.keys.include?(:test_code)
 
-            id = Spine::Person.search_by_identifier(result[:patient_id]).first.id rescue nil
+            id = Spine::Person.search_by_identifier(result[:clinic_patient_id]).first.id rescue nil
 
-            order = LabResult.create(
-              {
-                :patient_id => id,
-                :national_id => result[:patient_id],
-                :request_number => result[:request_number],
-                :voided => 0
-              }
-            )
+            if !id.nil?
+              
+              previous_order = LabResult.find_by_request_number(result[:request_number], 
+                :conditions => ["test_code = ?", result[:test_code]])
 
-            result.each do |key, value|
+              if previous_order.nil?
 
-              LabResultDetails.create(
-                {
-                  :lab_result_id => order.id,
-                  :field_name => key,
-                  :field_value => value,
-                  :voided => 0
+                order = LabResult.create(
+                  {
+                    :patient_id => id,
+                    :national_id => result[:clinic_patient_id],
+                    :request_number => result[:request_number],
+                    :test_code => result[:test_code],
+                    :voided => 0
+                  }
+                )
+
+                result.each do |key, value|
+
+                  LabResultDetails.create(
+                    {
+                      :lab_result_id => order.id,
+                      :field_name => key,
+                      :field_value => value,
+                      :voided => 0
+                    }
+                  ) if key != :request_number && key != :clinic_patient_id && 
+                    !key.match(/@/) && key != :test_code
+
+                end
+
+              else
+
+                LabResultDetails.find_all_by_lab_result_id(previous_order.id).each{|lab|
+                  lab.void
                 }
-              ) if key != :request_number && key != :patient_id && !key.match(/@/)
 
+                result.each do |key, value|
+
+                  LabResultDetails.create(
+                    {
+                      :lab_result_id => previous_order.id,
+                      :field_name => key,
+                      :field_value => value,
+                      :voided => 0
+                    }
+                  ) if key != :request_number && key != :clinic_patient_id &&
+                    !key.match(/@/) && key != :test_code
+
+                end
+                
+              end
+            
             end
 
           end
@@ -474,34 +507,67 @@ class PatientsController < ApplicationController
 
       else
 
-        if !results[:patient_id].nil?
+        if !results[:clinic_patient_id].nil? && results.keys.include?(:test_code)
 
-          id = Spine::Person.search_by_identifier(results[:patient_id]).first.id rescue nil
+          id = Spine::Person.search_by_identifier(results[:clinic_patient_id]).first.id rescue nil
 
-          order = LabResult.create(
-            {
-              :patient_id => id,
-              :national_id => results[:patient_id],
-              :request_number => results[:request_number],
-              :voided => 0
-            }
-          )
+          if !id.nil?
 
-          results.each do |key, value|
+            previous_order = LabResult.find_by_request_number(results[:request_number],
+              :conditions => ["test_code = ?", results[:test_code]])
 
-            LabResultDetails.create(
-              {
-                :lab_result_id => order.id,
-                :field_name => key,
-                :field_value => value,
-                :voided => 0
+            if previous_order.nil?
+
+              order = LabResult.create(
+                {
+                  :patient_id => id,
+                  :national_id => results[:clinic_patient_id],
+                  :request_number => results[:request_number],
+                  :test_code => results[:test_code],
+                  :voided => 0
+                }
+              )
+
+              results.each do |key, value|
+
+                LabResultDetails.create(
+                  {
+                    :lab_result_id => order.id,
+                    :field_name => key,
+                    :field_value => value,
+                    :voided => 0
+                  }
+                ) if key != :request_number && key != :clinic_patient_id &&
+                  !key.match(/@/) && key != :test_code
+
+              end
+
+            else
+
+              LabResultDetails.find_all_by_lab_result_id(previous_order.id).each{|lab|
+                lab.void
               }
-            ) if key != :request_number && key != :patient_id && !key.match(/@/)
+
+              results.each do |key, value|
+
+                LabResultDetails.create(
+                  {
+                    :lab_result_id => previous_order.id,
+                    :field_name => key,
+                    :field_value => value,
+                    :voided => 0
+                  }
+                ) if key != :request_number && key != :clinic_patient_id &&
+                  !key.match(/@/) && key != :test_code
+
+              end
+
+            end
 
           end
 
         end
-
+        
         @new_results = 1
       end
 

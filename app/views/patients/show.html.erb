@@ -6,6 +6,7 @@
     <script language="javascript">
       tt_cancel_destination = "http://<%= @cancel_destination_root_url %>/patients/show/<%= @patient.id %>";
       tt_cancel_show = "http://<%= @cancel_destination_root_url %>/patients/show/<%= @patient.id %>";
+
     </script>
     <style type="text/css">
       #buttonlinks {
@@ -63,14 +64,14 @@
           <span id='patient_gender'><%= (@gender.upcase == "F" ? "Female" :
                 (@gender.upcase == "M" ? "Male" : "")) %></span>
           <select id="tabs">
-            <option value='/show/overview/<%= @patient.id %>'>Current Orders</option>
-            <option value='/show/orders/<%= @patient.id %>'>Outstanding Lab Orders</option>
-            <option value='/show/results/<%= @patient.id %>'>Lab Results</option>
+            <option value='/show/overview/<%= @patient.id %>'>Current Lab Results</option>
+            <option value='/show/orders/<%= @patient.id %>'>Historical Lab Results</option>
+            <!--option value='/show/results/<%#= @patient.id %>'>Lab Results</option-->
           </select>
           <select id="links">
             <!--option></option>
             <option></option-->
-            <option value='/order_request/<%= @patient.id %>'>New Lab Order</option>
+            <option value='/check_by_date/<%= @patient.id %>'>Check Results</option>
             <!--option></option-->
           </select>
           <input type='submit' value='Finish' />
@@ -92,7 +93,7 @@
         
           btn.onclick = control.onclick;
 
-          btn.value = "New\nLab Order";
+          btn.value = "Check\nResults";
 
           control.style.display = "none";
 

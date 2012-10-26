@@ -37,84 +37,32 @@
     </script>
   </head>
   <body>
-    <table width="100%" cellpadding="10" cellspacing="1">
+    <table width="100%" cellpadding="10" cellspacing="1" style="border-left: 1px solid #6281A7;">
       <tr style="font-size: 14px; background-color: #6281A7; color: #fff; font-weight: bold;">
-        <td style="text-align: center; vertical-align: top;">
-          Request Number
-        </td>
-        <td style="text-align: center; vertical-align: top;">
-          Test
-        </td>
-        <td style="text-align: center; vertical-align: top;">
-          Test Unit
-        </td>
-        <td style="text-align: center; vertical-align: top;">
-          Test Range
-        </td>
-        <td style="text-align: center; vertical-align: top;">
-          Result
-        </td>
-        <td style="text-align: center; vertical-align: top;">
-          Date Collected
-        </td>
-        <td style="text-align: center; vertical-align: top;">
-          Date Result Received
-        </td>
-        <td style="text-align: center; vertical-align: top;">
-          Color
-        </td>
-        <td style="text-align: center; vertical-align: top;">
-          Operations
-        </td>
+
+        <% @fields.each do |field| %>
+
+          <td style="text-align: center; vertical-align: top;">
+            <%= field.gsub(/timestamp/, "Date Retrieved").gsub(/_/," ").titleize rescue "" %>
+          </td>
+
+        <% end %>
+
       </tr>
 
       <% @orders.each do |order| %>
-        <tr>
-          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.request_number rescue "" %>&nbsp;
-          </td>
-          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.test_code %>&nbsp;
-          </td>
-          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.test_unit rescue "" %>&nbsp;
-          </td>
-          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.test_range rescue "" %>&nbsp;
-          </td>
-          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.result rescue "" %>&nbsp;
-          </td>
-          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.date_collected.strftime("%d/%b/%Y") rescue "" %>&nbsp;
-          </td>
-          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.date_result_received.strftime("%d/%b/%Y") rescue "" %>&nbsp;
-          </td>
-          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
-            <%= order.colour rescue "" %>&nbsp;
-          </td>
-          <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7;
-              vertical-align: top; text-align: center;">
-            <table>
-              <tr>
-                <td style="text-align: center; width: 60px;">
-                  <img src="/assets/print.png" alt="Print" style="cursor: pointer;"
-                       onclick="confirmAction('Print this order?', '/print_ord/<%= order.id %>?redirect_url=show')" />
-                </td>
-                <td style="text-align: center; width: 60px;">
-                  <% if order.result.blank? %>
-                    <img src="/assets/cancel_flat_small_red.png" alt="Void" style="cursor: pointer;"
-                         onclick="confirmAction('Do you really want to delete this entry?', '/void/<%= order.id %>');" />
-                       <% else %>
-                    &nbsp;
-                  <% end %>
-                </td>
-              </tr>
-            </table>
 
-          </td>
+        <tr>
+          <% @fields.each do |field| %>
+
+            <td style="border-right: 1px solid #6281A7; border-bottom: 1px solid #6281A7; vertical-align: top;">
+              <%= order[1][field] %>&nbsp;
+            </td>
+
+          <% end %>
+
         </tr>
+
       <% end %>
 
     </table>

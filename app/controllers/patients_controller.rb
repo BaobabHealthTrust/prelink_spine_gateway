@@ -200,33 +200,70 @@ class PatientsController < ApplicationController
   def overview
     @patient = Spine::Patient.find(params[:id]) rescue nil
 
-    @name = @patient.person.name rescue ""
-
-    @first_name = @patient.person.names.first.given_name rescue ""
-    @last_name = @patient.person.names.first.family_name rescue ""
     @national_id = @patient.national_id_with_dashes(false) rescue ""
-    @age = @patient.person.age rescue ""
-    @dob = @patient.person.birthdate rescue ""
-    @gender = @patient.person.gender rescue ""
-
-    @orders = LabOrder.find(:all, :conditions => ["patient_id = ? AND DATE(timestamp) = ?",
-        @patient.id, (session[:datetime] ? session[:datetime].to_date.strftime("%Y-%m-%d") :
-            Date.today.strftime("%Y-%m-%d"))]) rescue []
     
+    @fields = ["request_number", "timestamp"]
+
+    @fields = @fields + LabResultDetails.find(:all, :joins => [:lab_result],
+      :select => ["DISTINCT field_name"],
+      :conditions => ["patient_id = ?", @patient.id]).map{|l| l.field_name} rescue []
+
+    @labs = LabResultDetails.find(:all, :joins => [:lab_result], :order => ["timestamp DESC"],
+      :select => ["lab_result.lab_result_id, lab_result.request_number, field_name, field_value, timestamp"],
+      :conditions => ["patient_id = ? AND DATE(timestamp) = ?",
+        @patient.id, (session[:datetime] ? session[:datetime].to_date.strftime("%Y-%m-%d") :
+            Date.today.strftime("%Y-%m-%d"))])
+
+    @orders = {}
+
+    @labs.each do |lab|
+
+      if @orders[lab.lab_result_id].nil?
+
+        @orders[lab.lab_result_id] = {
+          "request_number" => "#{lab.request_number}",
+          "timestamp" => "#{lab.timestamp}"
+        }
+
+      end
+
+      @orders[lab.lab_result_id][lab.field_name] = "#{lab.field_value}"
+
+    end
+
     render :layout => false
   end
 
   def orders
     @patient = Spine::Patient.find(params[:id]) rescue nil
 
-    @orders = LabOrder.find(:all, :conditions => ["patient_id = ?", @patient.id]) rescue []
+    @national_id = @patient.national_id_with_dashes(false) rescue ""
 
-    @open = []
+    @fields = ["request_number", "timestamp"]
 
-    @orders.each do |order|
-      if order.result.blank?
-        @open << order
+    @fields = @fields + LabResultDetails.find(:all, :joins => [:lab_result],
+      :select => ["DISTINCT field_name"],
+      :conditions => ["patient_id = ?", @patient.id]).map{|l| l.field_name} rescue []
+
+    @labs = LabResultDetails.find(:all, :joins => [:lab_result], :order => ["timestamp DESC"],
+      :select => ["lab_result.lab_result_id, lab_result.request_number, field_name, field_value, timestamp"],
+      :conditions => ["patient_id = ?", @patient.id])
+
+    @orders = {}
+
+    @labs.each do |lab|
+
+      if @orders[lab.lab_result_id].nil?
+
+        @orders[lab.lab_result_id] = {
+          "request_number" => "#{lab.request_number}",
+          "timestamp" => "#{lab.timestamp}"
+        }
+
       end
+
+      @orders[lab.lab_result_id][lab.field_name] = "#{lab.field_value}"
+
     end
 
     render :layout => false
@@ -285,9 +322,7 @@ class PatientsController < ApplicationController
         @new_results = 1
 
       end
-      
-      
-      
+                 
     else
 
       @new_results = 0
@@ -295,6 +330,188 @@ class PatientsController < ApplicationController
     end
 
     # render :text => results.length rescue 0
+  end
+
+  def query_new_results
+    results = @prelink.get_new_results rescue nil
+    # [{:patient_id=>nil, :request_number=>"SPN96", :result=>"Positive", :test_unit=>"Mg/l", :test_range=>"0-9", :colour=>"Red", :"@diffgr:id"=>"Result1", :"@msdata:row_order"=>"0"}, {
+    
+    if !results.nil?
+
+      if results.class.to_s.upcase == "ARRAY"
+
+        results.each do |result|
+
+          if !result[:patient_id].nil?
+            
+            id = Spine::Person.search_by_identifier(result[:patient_id]).first.id rescue nil
+
+            order = LabResult.create(
+              {
+                :patient_id => id,
+                :national_id => result[:patient_id],
+                :request_number => result[:request_number],
+                :voided => 0
+              }
+            )
+
+            result.each do |key, value|
+            
+              LabResultDetails.create(
+                {
+                  :lab_result_id => order.id,
+                  :field_name => key,
+                  :field_value => value,
+                  :voided => 0
+                }
+              ) if key != :request_number && key != :patient_id && !key.match(/@/)
+
+            end
+
+          end
+
+        end
+
+        @new_results = results.length rescue 0
+        
+      else
+
+        if !results[:patient_id].nil?
+
+          id = Spine::Person.search_by_identifier(results[:patient_id]).first.id rescue nil
+
+          order = LabResult.create(
+            {
+              :patient_id => id,
+              :national_id => results[:patient_id],
+              :request_number => results[:request_number],
+              :voided => 0
+            }
+          )
+
+          results.each do |key, value|
+
+            LabResultDetails.create(
+              {
+                :lab_result_id => order.id,
+                :field_name => key,
+                :field_value => value,
+                :voided => 0
+              }
+            ) if key != :request_number && key != :patient_id && !key.match(/@/)
+
+          end
+
+        end
+
+        @new_results = 1
+      end
+
+    else
+
+      @new_results = 0
+
+    end
+    
+  end
+
+  def check_by_date
+    @patient_id = params[:id]
+  end
+
+  def check_result_by_date
+    s_d = params["StartDate"].split("-")
+    start_date = s_d[2] + s_d[1] + s_d[0]
+
+    e_d = params["EndDate"].split("-")
+    end_date = e_d[2] + e_d[1] + e_d[0]
+    
+    national_id = Spine::PatientIdentifier.find_by_patient_id(params[:patient_id],
+      :conditions => ["identifier_type = ?",
+        Spine::PatientIdentifierType.find_by_name("National id").id]).identifier rescue nil
+
+    results = @prelink.get_results_by_date({:national_id => national_id,
+        :start_date => start_date, :end_date => end_date}) rescue nil
+    
+    @patient_id = params["patient_id"]
+    if !results.nil?
+
+      if results.class.to_s.upcase == "ARRAY"
+
+        results.each do |result|
+
+          if !result[:patient_id].nil?
+
+            id = Spine::Person.search_by_identifier(result[:patient_id]).first.id rescue nil
+
+            order = LabResult.create(
+              {
+                :patient_id => id,
+                :national_id => result[:patient_id],
+                :request_number => result[:request_number],
+                :voided => 0
+              }
+            )
+
+            result.each do |key, value|
+
+              LabResultDetails.create(
+                {
+                  :lab_result_id => order.id,
+                  :field_name => key,
+                  :field_value => value,
+                  :voided => 0
+                }
+              ) if key != :request_number && key != :patient_id && !key.match(/@/)
+
+            end
+
+          end
+
+        end
+
+        @new_results = results.length rescue 0
+
+      else
+
+        if !results[:patient_id].nil?
+
+          id = Spine::Person.search_by_identifier(results[:patient_id]).first.id rescue nil
+
+          order = LabResult.create(
+            {
+              :patient_id => id,
+              :national_id => results[:patient_id],
+              :request_number => results[:request_number],
+              :voided => 0
+            }
+          )
+
+          results.each do |key, value|
+
+            LabResultDetails.create(
+              {
+                :lab_result_id => order.id,
+                :field_name => key,
+                :field_value => value,
+                :voided => 0
+              }
+            ) if key != :request_number && key != :patient_id && !key.match(/@/)
+
+          end
+
+        end
+
+        @new_results = 1
+      end
+
+    else
+
+      @new_results = 0
+
+    end
+    
+    redirect_to "/show/#{@patient_id}" and return
   end
 
   def void

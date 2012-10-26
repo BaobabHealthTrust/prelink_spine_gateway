@@ -1,3 +1,4 @@
+# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -31,5 +32,19 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   add_index "lab_order", ["lab_order_id"], :name => "lab_order_id_UNIQUE", :unique => true
+
+  create_table "lab_result", :primary_key => "lab_result_id", :force => true do |t|
+    t.string  "national_id",    :limit => 45
+    t.string  "request_number", :limit => 45
+    t.integer "voided",                       :default => 0
+  end
+
+  create_table "lab_result_details", :primary_key => "lab_result_details_id", :force => true do |t|
+    t.integer   "lab_result_id"
+    t.string    "field_name"
+    t.string    "field_value"
+    t.timestamp "timestamp",                    :null => false
+    t.integer   "voided",        :default => 0
+  end
 
 end

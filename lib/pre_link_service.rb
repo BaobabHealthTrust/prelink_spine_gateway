@@ -178,8 +178,8 @@ class PreLinkService
 
   end
 
-  def get_results_by_date
-    response = @client.request :get_new_results do |soap|
+  def get_results_by_date(params = {})
+    response = @client.request :get_results_by_date do |soap|
       soap.xml = '<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Header>
@@ -201,7 +201,7 @@ class PreLinkService
 
     return [] if response.soap_fault?
 
-    useful_elements = response.to_hash[:get_results_by_date_response][:get_results_by_date_result]
+    useful_elements = response.to_hash[:get_results_by_date_response][:get_results_by_date_result][:diffgram][:document_element][:result] rescue []
 
   end
 

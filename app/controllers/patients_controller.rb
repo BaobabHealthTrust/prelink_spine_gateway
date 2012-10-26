@@ -194,7 +194,10 @@ class PatientsController < ApplicationController
 
     @cancel_destination_root_url =
       YAML.load_file("#{Rails.root}/config/application.yml")["#{Rails.env}"]["cancel_destination_root_url"] rescue ""
-    
+
+    @results = @prelink.get_test_codes rescue nil
+
+    # raise @results.inspect
   end
 
   def overview
@@ -202,26 +205,42 @@ class PatientsController < ApplicationController
 
     @national_id = @patient.national_id_with_dashes(false) rescue ""
     
-    @fields = ["request_number", "timestamp"]
+    @fields = ["request_number", "timestamp", "test_code"]
 
     @fields = @fields + LabResultDetails.find(:all, :joins => [:lab_result],
       :select => ["DISTINCT field_name"],
       :conditions => ["patient_id = ?", @patient.id]).map{|l| l.field_name} rescue []
 
     @labs = LabResultDetails.find(:all, :joins => [:lab_result], :order => ["timestamp DESC"],
-      :select => ["lab_result.lab_result_id, lab_result.request_number, field_name, field_value, timestamp"],
+      :select => ["lab_result.lab_result_id, lab_result.request_number, lab_result.test_code, " +
+          "field_name, field_value, timestamp"],
       :conditions => ["patient_id = ? AND DATE(timestamp) = ?",
         @patient.id, (session[:datetime] ? session[:datetime].to_date.strftime("%Y-%m-%d") :
             Date.today.strftime("%Y-%m-%d"))])
 
     @orders = {}
 
-    @labs.each do |lab|
+    mapping = {"08B"=>"Albumin", "35A"=>"Alkaline Phosphatase", "31A"=>"ALT", 
+      "30A"=>"AST", "BA#"=>"Basophils#", "BA%"=>"Basophils%", 
+      "12A"=>"Bilirubin Direct", "11A"=>"Bilirubin Total", "44A"=>"Cholesterol",
+      "MCA"=>"CRAG Test", "03F"=>"Urine Creatinine ", "89A"=>"CRP", "EO#"=>"Eosinophils#",
+      "EO%"=>"Eosinophils%", "36A"=>"GGT", "06A"=>"Glucose random (serum)",
+      "HCT"=>"Haematocrit", "HB"=>"Haemoglobin", "83D"=>"LDH", "HIVAMPLICORPCRQUAL"=>"HIV DNA PCR Confirmatory",
+      "HIVD"=>"HIV Rapid Test", "HSV2KALON"=>"HSV-2 KALON ELISA", "34B"=>"LDL Cholesterol", "LY#"=>"Lymphocytes#",
+      "LY%"=>"Lymphocytes%", "48A"=>"Magnesium", "MALTHICK"=>"Malaria Thick Film", "MCH"=>"MCH",
+      "MCHC"=>"MCHC", "MCV"=>"MCV", "MRETVol"=>"Mean Reticulocyte Volume", "MO#"=>"Monocytes#",
+      "MO%"=>"Monocytes%", "MPV"=>"MPV", "01A"=>"NA", "NE#"=>"Neutrophils#", "NE%"=>"Neutrophils%",
+      "PLT"=>"Platelets", "01B"=>"Potassium", "07A"=>"Protein Pleural", "RDW"=>"RDW",
+      "RBC"=>"Red Cell Count", "RET%"=>"Retic", "TIBC"=>"TIBC", "TPPA"=>"TPPA FUJIREBIO",
+      "42B"=>"Triglycerides", "UREA"=>"Urea", "08M"=>"Urine albumin", "WBC"=>"WCC "}
 
+    @labs.each do |lab|
+      
       if @orders[lab.lab_result_id].nil?
 
         @orders[lab.lab_result_id] = {
           "request_number" => "#{lab.request_number}",
+          "test_code" => "#{mapping[lab.test_code]}",
           "timestamp" => "#{lab.timestamp}"
         }
 
@@ -239,17 +258,32 @@ class PatientsController < ApplicationController
 
     @national_id = @patient.national_id_with_dashes(false) rescue ""
 
-    @fields = ["request_number", "timestamp"]
+    @fields = ["request_number", "timestamp", "test_code"]
 
     @fields = @fields + LabResultDetails.find(:all, :joins => [:lab_result],
       :select => ["DISTINCT field_name"],
       :conditions => ["patient_id = ?", @patient.id]).map{|l| l.field_name} rescue []
 
     @labs = LabResultDetails.find(:all, :joins => [:lab_result], :order => ["timestamp DESC"],
-      :select => ["lab_result.lab_result_id, lab_result.request_number, field_name, field_value, timestamp"],
+      :select => ["lab_result.lab_result_id, lab_result.request_number, field_name, lab_result.test_code, " +
+          "field_value, timestamp"],
       :conditions => ["patient_id = ?", @patient.id])
 
     @orders = {}
+
+    mapping = {"08B"=>"Albumin", "35A"=>"Alkaline Phosphatase", "31A"=>"ALT",
+      "30A"=>"AST", "BA#"=>"Basophils#", "BA%"=>"Basophils%",
+      "12A"=>"Bilirubin Direct", "11A"=>"Bilirubin Total", "44A"=>"Cholesterol",
+      "MCA"=>"CRAG Test", "03F"=>"Urine Creatinine ", "89A"=>"CRP", "EO#"=>"Eosinophils#",
+      "EO%"=>"Eosinophils%", "36A"=>"GGT", "06A"=>"Glucose random (serum)",
+      "HCT"=>"Haematocrit", "HB"=>"Haemoglobin", "83D"=>"LDH", "HIVAMPLICORPCRQUAL"=>"HIV DNA PCR Confirmatory",
+      "HIVD"=>"HIV Rapid Test", "HSV2KALON"=>"HSV-2 KALON ELISA", "34B"=>"LDL Cholesterol", "LY#"=>"Lymphocytes#",
+      "LY%"=>"Lymphocytes%", "48A"=>"Magnesium", "MALTHICK"=>"Malaria Thick Film", "MCH"=>"MCH",
+      "MCHC"=>"MCHC", "MCV"=>"MCV", "MRETVol"=>"Mean Reticulocyte Volume", "MO#"=>"Monocytes#",
+      "MO%"=>"Monocytes%", "MPV"=>"MPV", "01A"=>"NA", "NE#"=>"Neutrophils#", "NE%"=>"Neutrophils%",
+      "PLT"=>"Platelets", "01B"=>"Potassium", "07A"=>"Protein Pleural", "RDW"=>"RDW",
+      "RBC"=>"Red Cell Count", "RET%"=>"Retic", "TIBC"=>"TIBC", "TPPA"=>"TPPA FUJIREBIO",
+      "42B"=>"Triglycerides", "UREA"=>"Urea", "08M"=>"Urine albumin", "WBC"=>"WCC "}
 
     @labs.each do |lab|
 
@@ -257,6 +291,7 @@ class PatientsController < ApplicationController
 
         @orders[lab.lab_result_id] = {
           "request_number" => "#{lab.request_number}",
+          "test_code" => "#{mapping[lab.test_code]}",
           "timestamp" => "#{lab.timestamp}"
         }
 
@@ -335,36 +370,69 @@ class PatientsController < ApplicationController
   def query_new_results
     results = @prelink.get_new_results rescue nil
     # [{:patient_id=>nil, :request_number=>"SPN96", :result=>"Positive", :test_unit=>"Mg/l", :test_range=>"0-9", :colour=>"Red", :"@diffgr:id"=>"Result1", :"@msdata:row_order"=>"0"}, {
-    
+
     if !results.nil?
 
       if results.class.to_s.upcase == "ARRAY"
 
         results.each do |result|
 
-          if !result[:patient_id].nil?
-            
-            id = Spine::Person.search_by_identifier(result[:patient_id]).first.id rescue nil
+          if !result[:clinic_patient_id].nil? && result.keys.include?(:test_code)
 
-            order = LabResult.create(
-              {
-                :patient_id => id,
-                :national_id => result[:patient_id],
-                :request_number => result[:request_number],
-                :voided => 0
-              }
-            )
+            id = Spine::Person.search_by_identifier(result[:clinic_patient_id]).first.id rescue nil
 
-            result.each do |key, value|
-            
-              LabResultDetails.create(
-                {
-                  :lab_result_id => order.id,
-                  :field_name => key,
-                  :field_value => value,
-                  :voided => 0
+            if !id.nil?
+
+              previous_order = LabResult.find_by_request_number(result[:request_number],
+                :conditions => ["test_code = ?", result[:test_code]])
+
+              if previous_order.nil?
+
+                order = LabResult.create(
+                  {
+                    :patient_id => id,
+                    :national_id => result[:clinic_patient_id],
+                    :request_number => result[:request_number],
+                    :test_code => result[:test_code],
+                    :voided => 0
+                  }
+                )
+
+                result.each do |key, value|
+
+                  LabResultDetails.create(
+                    {
+                      :lab_result_id => order.id,
+                      :field_name => key,
+                      :field_value => value,
+                      :voided => 0
+                    }
+                  ) if key != :request_number && key != :clinic_patient_id &&
+                    !key.match(/@/) && key != :test_code
+
+                end
+
+              else
+
+                LabResultDetails.find_all_by_lab_result_id(previous_order.id).each{|lab|
+                  lab.void
                 }
-              ) if key != :request_number && key != :patient_id && !key.match(/@/)
+
+                result.each do |key, value|
+
+                  LabResultDetails.create(
+                    {
+                      :lab_result_id => previous_order.id,
+                      :field_name => key,
+                      :field_value => value,
+                      :voided => 0
+                    }
+                  ) if key != :request_number && key != :clinic_patient_id &&
+                    !key.match(/@/) && key != :test_code
+
+                end
+
+              end
 
             end
 
@@ -373,32 +441,65 @@ class PatientsController < ApplicationController
         end
 
         @new_results = results.length rescue 0
-        
+
       else
 
-        if !results[:patient_id].nil?
+        if !results[:clinic_patient_id].nil? && results.keys.include?(:test_code)
 
-          id = Spine::Person.search_by_identifier(results[:patient_id]).first.id rescue nil
+          id = Spine::Person.search_by_identifier(results[:clinic_patient_id]).first.id rescue nil
 
-          order = LabResult.create(
-            {
-              :patient_id => id,
-              :national_id => results[:patient_id],
-              :request_number => results[:request_number],
-              :voided => 0
-            }
-          )
+          if !id.nil?
 
-          results.each do |key, value|
+            previous_order = LabResult.find_by_request_number(results[:request_number],
+              :conditions => ["test_code = ?", results[:test_code]])
 
-            LabResultDetails.create(
-              {
-                :lab_result_id => order.id,
-                :field_name => key,
-                :field_value => value,
-                :voided => 0
+            if previous_order.nil?
+
+              order = LabResult.create(
+                {
+                  :patient_id => id,
+                  :national_id => results[:clinic_patient_id],
+                  :request_number => results[:request_number],
+                  :test_code => results[:test_code],
+                  :voided => 0
+                }
+              )
+
+              results.each do |key, value|
+
+                LabResultDetails.create(
+                  {
+                    :lab_result_id => order.id,
+                    :field_name => key,
+                    :field_value => value,
+                    :voided => 0
+                  }
+                ) if key != :request_number && key != :clinic_patient_id &&
+                  !key.match(/@/) && key != :test_code
+
+              end
+
+            else
+
+              LabResultDetails.find_all_by_lab_result_id(previous_order.id).each{|lab|
+                lab.void
               }
-            ) if key != :request_number && key != :patient_id && !key.match(/@/)
+
+              results.each do |key, value|
+
+                LabResultDetails.create(
+                  {
+                    :lab_result_id => previous_order.id,
+                    :field_name => key,
+                    :field_value => value,
+                    :voided => 0
+                  }
+                ) if key != :request_number && key != :clinic_patient_id &&
+                  !key.match(/@/) && key != :test_code
+
+              end
+
+            end
 
           end
 
